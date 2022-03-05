@@ -165,6 +165,7 @@ export function createComponent (
 
   // extract listeners, since these needs to be treated as
   // child component listeners instead of DOM listeners
+  // nativeOn原生事件，on自定义事件；组件上定义的事件：原生事件要在当前定义组件里执行（也就是父组件里），自定义事件传入到子组件里。
   const listeners = data.on
   // replace with listeners with .native modifier
   // so it gets processed during parent component patch.

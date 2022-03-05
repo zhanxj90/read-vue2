@@ -75,13 +75,16 @@ export function updateListeners (
       )
     } else if (isUndef(old)) {
       if (isUndef(cur.fns)) {
+        // 第一次进入
         cur = on[name] = createFnInvoker(cur, vm)
       }
       if (isTrue(event.once)) {
         cur = on[name] = createOnceHandler(event.name, cur, event.capture)
       }
+      // 这里会用macroTask（队列）包裹一下，保证修改数据会异步在下一次队列执行
       add(event.name, cur, event.capture, event.passive, event.params)
     } else if (cur !== old) {
+      // 第二次及以后，add添加事件只执行一次，这里换方法引用就行
       old.fns = cur
       on[name] = old
     }

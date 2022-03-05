@@ -53,6 +53,20 @@ export function generate (
   }
 }
 
+
+/**
+ * ast生成code
+ * html：<ul :class="bindCls" class="list" v-if="isShow">
+    <li v-for="(item,index) in data" @click="clickItem(index)">{{item}}:{{index}}</li>
+</ul>
+ * ast={'type':1,'tag':'ul','attrsList':[],'attrsMap':{':class':'bindCls','class':'list','v-if':'isShow'},'if':'isShow','ifConditions':[{'exp':'isShow','block':}],'parent':undefined,'plain':false,'staticClass':'list','classBinding':'bindCls','static':false,'staticRoot':false,'children':[{'type':1,'tag':'li','attrsList':[{'name':'@click','value':'clickItem(index)'}],'attrsMap':{'@click':'clickItem(index)','v-for':'(item,index) in data'},'parent':'plain':false,'events':{'click':{'value':'clickItem(index)'}},'hasBindings':true,'for':'data','alias':'item','iterator1':'index','static':false,'staticRoot':false,'children':['type':2,'expression':'_s(item)+":"+_s(index)''text':'{{item}}:{{index}}','tokens':[{'@binding':'item'},':',{'@binding':'index'}],'static':false]}]}
+ * 结果: 
+ *    if: (isShow) ? genElement(el, state) : _e()
+ *    for: _l((data), function(item, index) { return genElememt(el, state) })
+ * @param {ASTElement} el 
+ * @param {*} state 
+ * @returns 
+ */
 export function genElement (el: ASTElement, state: CodegenState): string {
   if (el.parent) {
     el.pre = el.pre || el.parent.pre
@@ -89,12 +103,14 @@ export function genElement (el: ASTElement, state: CodegenState): string {
       })`
     }
     // module transforms
+    // 获取所有 modules 中的 transforms 函数
     for (let i = 0; i < state.transforms.length; i++) {
       code = state.transforms[i](el, code)
     }
     return code
   }
 }
+
 
 // hoist static sub-trees out
 function genStatic (el: ASTElement, state: CodegenState): string {
