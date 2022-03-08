@@ -47,6 +47,7 @@ export default function model (
   } else if (tag === 'input' || tag === 'textarea') {
     genDefaultModel(el, value, modifiers)
   } else if (!config.isReservedTag(tag)) {
+    // v-model定义在子组件上是
     genComponentModel(el, value, modifiers)
     // component v-model doesn't need extra runtime
     return false
@@ -146,6 +147,7 @@ function genDefaultModel (
     }
   }
 
+  // 检查修饰符，更具不同修饰符修改dom目标和监听方法
   const { lazy, number, trim } = modifiers || {}
   const needCompositionGuard = !lazy && type !== 'range'
   const event = lazy
@@ -162,11 +164,14 @@ function genDefaultModel (
     valueExpression = `_n(${valueExpression})`
   }
 
+  // 主要逻辑，生成model代码
+  // '<input v-model="message" placeholder="edit me">'这里就是message=$event.target.value
   let code = genAssignmentCode(value, valueExpression)
   if (needCompositionGuard) {
     code = `if($event.target.composing)return;${code}`
   }
-
+  // 这是主要实现方法，给el添加prop动态绑定数据，并添加触发事件
+  // 上面的例子就相当于：<input v-bind:value="message" v-on:input="message=$event.target.value"> 所以说是语法糖
   addProp(el, 'value', `(${value})`)
   addHandler(el, event, code, null, true)
   if (trim || number) {

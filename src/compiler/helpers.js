@@ -39,6 +39,7 @@ export function addRawAttr (el: ASTElement, name: string, value: any, range?: Ra
   el.attrsList.push(rangeSetItem({ name, value }, range))
 }
 
+// 添加自定义指令和v-model指令到el.directives中
 export function addDirective (
   el: ASTElement,
   name: string,

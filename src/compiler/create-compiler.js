@@ -10,6 +10,7 @@ export function createCompilerCreator (baseCompile: Function): Function {
       template: string,
       options?: CompilerOptions
     ): CompiledResult {
+      // 编译之前先合并一些平台环境下的基本配置；例：directives，css，style等编译方法
       const finalOptions = Object.create(baseOptions)
       const errors = []
       const tips = []

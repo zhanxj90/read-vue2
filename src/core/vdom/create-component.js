@@ -98,6 +98,7 @@ const componentVNodeHooks = {
 
 const hooksToMerge = Object.keys(componentVNodeHooks)
 
+// 创建子组件 vnode 阶段会执行
 export function createComponent (
   Ctor: Class<Component> | Function | Object | void,
   data: ?VNodeData,
@@ -151,6 +152,7 @@ export function createComponent (
   resolveConstructorOptions(Ctor)
 
   // transform component v-model data into props & events
+  // 父组件中引用子组件时绑定了v-model
   if (isDef(data.model)) {
     transformModel(Ctor.options, data)
   }
@@ -250,7 +252,10 @@ function mergeHook (f1: any, f2: any): Function {
 
 // transform component v-model info (value and callback) into
 // prop and event handler respectively.
+// 父组件中子组件上v-model的编译过程
+// options-子组件定义的配置项；props，data，model等
 function transformModel (options, data: any) {
+  // 这里表示可以通过model 选项修改v-model默认事件和值名；例：model: {prop: 'msg',event: 'change'},这样绑定的value名称就是msg，原生事件是change
   const prop = (options.model && options.model.prop) || 'value'
   const event = (options.model && options.model.event) || 'input'
   ;(data.attrs || (data.attrs = {}))[prop] = data.model.value

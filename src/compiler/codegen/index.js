@@ -26,6 +26,7 @@ export class CodegenState {
     this.warn = options.warn || baseWarn
     this.transforms = pluckModuleFunction(options.modules, 'transformCode')
     this.dataGenFns = pluckModuleFunction(options.modules, 'genData')
+    // 合并directives方法。baseDirectives中只有on,bind,cloak；其他一些已经合并到options中
     this.directives = extend(extend({}, baseDirectives), options.directives)
     const isReservedTag = options.isReservedTag || no
     this.maybeComponent = (el: ASTElement) => !!el.component || !isReservedTag(el.tag)
@@ -44,6 +45,7 @@ export function generate (
   ast: ASTElement | void,
   options: CompilerOptions
 ): CodegenResult {
+  // CodegenState初始化了各个模块的方法，css、style、directive等
   const state = new CodegenState(options)
   // fix #11483, Root level <script> tags should not be rendered.
   const code = ast ? (ast.tag === 'script' ? 'null' : genElement(ast, state)) : '_c("div")'
@@ -92,6 +94,7 @@ export function genElement (el: ASTElement, state: CodegenState): string {
     } else {
       let data
       if (!el.plain || (el.pre && state.maybeComponent(el))) {
+        // 处理指令字段
         data = genData(el, state)
       }
 
@@ -238,6 +241,7 @@ export function genData (el: ASTElement, state: CodegenState): string {
 
   // directives first.
   // directives may mutate the el's other properties before they are generated.
+  // 指令处理，指令可能会改变dom或其他参数字段，所以要先处理
   const dirs = genDirectives(el, state)
   if (dirs) data += dirs + ','
 
@@ -289,6 +293,7 @@ export function genData (el: ASTElement, state: CodegenState): string {
     data += `${genScopedSlots(el, el.scopedSlots, state)},`
   }
   // component v-model
+  // 父组件里在子组件上有v-model
   if (el.model) {
     data += `model:{value:${
       el.model.value
@@ -332,6 +337,7 @@ function genDirectives (el: ASTElement, state: CodegenState): string | void {
   for (i = 0, l = dirs.length; i < l; i++) {
     dir = dirs[i]
     needRuntime = true
+    // gen方法就是src\platforms\web\compiler\directives\index.js中的方法
     const gen: DirectiveFunction = state.directives[dir.name]
     if (gen) {
       // compile-time directive that manipulates AST.

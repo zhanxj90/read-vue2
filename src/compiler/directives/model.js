@@ -32,12 +32,14 @@ export function genComponentModel (
 
 /**
  * Cross-platform codegen helper for generating v-model value assignment code.
+ * 用于v-model 值分配代码的跨平台codegen助手。
  */
 export function genAssignmentCode (
   value: string,
   assignment: string
 ): string {
   const res = parseModel(value)
+  // 绑定的是对象或者数组才有key值
   if (res.key === null) {
     return `${value}=${assignment}`
   } else {
