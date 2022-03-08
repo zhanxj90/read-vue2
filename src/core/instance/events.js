@@ -68,6 +68,7 @@ export function eventsMixin (Vue: Class<Component>) {
     return vm
   }
 
+  // 绑定一次性事件，就是触发的时候把卸载一起执行了
   Vue.prototype.$once = function (event: string, fn: Function): Component {
     const vm: Component = this
     function on () {
@@ -81,7 +82,7 @@ export function eventsMixin (Vue: Class<Component>) {
 
   Vue.prototype.$off = function (event?: string | Array<string>, fn?: Function): Component {
     const vm: Component = this
-    // all
+    // all 不传参数就是卸载全部
     if (!arguments.length) {
       vm._events = Object.create(null)
       return vm

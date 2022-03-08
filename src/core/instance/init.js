@@ -33,6 +33,7 @@ export function initMixin (Vue: Class<Component>) {
       // optimize internal component instantiation
       // since dynamic options merging is pretty slow, and none of the
       // internal component options needs special treatment.
+      // 执行子组件会进入这里
       initInternalComponent(vm, options)
     } else {
       vm.$options = mergeOptions(
@@ -51,6 +52,7 @@ export function initMixin (Vue: Class<Component>) {
     vm._self = vm
     // 初始化钩子函数的参数之类的
     initLifecycle(vm)
+    // 初始化事件。初始化子组件事件的时候，父组件传入的 listeners已经在上面initInternalComponent中注入了
     initEvents(vm)
     initRender(vm)
     callHook(vm, 'beforeCreate')
