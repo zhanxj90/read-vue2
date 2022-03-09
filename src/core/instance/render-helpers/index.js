@@ -12,12 +12,13 @@ import { bindObjectListeners } from './bind-object-listeners'
 import { resolveScopedSlots } from './resolve-scoped-slots'
 import { bindDynamicKeys, prependModifier } from './bind-dynamic-keys'
 
+// 编译阶段中ast转成code代码串中使用的各个模块方法的缩写
 export function installRenderHelpers (target: any) {
   target._o = markOnce
   target._n = toNumber
   target._s = toString
-  target._l = renderList
-  target._t = renderSlot
+  target._l = renderList //for循环列表
+  target._t = renderSlot//插槽
   target._q = looseEqual
   target._i = looseIndexOf
   target._m = renderStatic

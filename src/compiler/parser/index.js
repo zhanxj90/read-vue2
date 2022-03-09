@@ -148,6 +148,7 @@ export function parse (
           // scoped slot
           // keep it in the children list so that v-else(-if) conditions can
           // find it as the prev node.
+          // 作用域插槽会挂载在父级AST 元素的scopedSlots里
           const name = element.slotTarget || '"default"'
           ;(currentParent.scopedSlots || (currentParent.scopedSlots = {}))[name] = element
         }
@@ -446,6 +447,7 @@ export function processElement (
   )
 
   processRef(element)
+  // 将模板中的slot解析到ast中，之前这里是processSlot一个方法，现在拆成这两个了
   processSlotContent(element)
   processSlotOutlet(element)
   processComponent(element)
@@ -601,6 +603,7 @@ function processOnce (el) {
 
 // handle content being passed to a component as slot,
 // e.g. <template slot="xxx">, <div slot-scope="xxx">
+// 插槽引用的地方
 function processSlotContent (el) {
   let slotScope
   if (el.tag === 'template') {
@@ -736,6 +739,7 @@ function getSlotName (binding) {
 }
 
 // handle <slot/> outlets
+// 插槽定义的地方
 function processSlotOutlet (el) {
   if (el.tag === 'slot') {
     el.slotName = getBindingAttr(el, 'name')

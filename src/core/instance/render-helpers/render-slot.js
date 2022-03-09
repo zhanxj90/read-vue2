@@ -11,6 +11,7 @@ export function renderSlot (
   props: ?Object,
   bindObject: ?Object
 ): ?Array<VNode> {
+  // 当前组件render的时候从父组件赋值过来的
   const scopedSlotFn = this.$scopedSlots[name]
   let nodes
   if (scopedSlotFn) {

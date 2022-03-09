@@ -85,6 +85,7 @@ export function genElement (el: ASTElement, state: CodegenState): string {
   } else if (el.tag === 'template' && !el.slotTarget && !state.pre) {
     return genChildren(el, state) || 'void 0'
   } else if (el.tag === 'slot') {
+    // 处理子组件中的插槽标签，<slot/>
     return genSlot(el, state)
   } else {
     // component or element
@@ -285,6 +286,7 @@ export function genData (el: ASTElement, state: CodegenState): string {
   }
   // slot target
   // only for non-scoped slots
+  // 解编ast中的插槽为code代码串
   if (el.slotTarget && !el.slotScope) {
     data += `slot:${el.slotTarget},`
   }
@@ -566,9 +568,11 @@ export function genComment (comment: ASTText): string {
   return `_e(${JSON.stringify(comment.text)})`
 }
 
+// ast中的插槽标签转成code代码串
 function genSlot (el: ASTElement, state: CodegenState): string {
   const slotName = el.slotName || '"default"'
   const children = genChildren(el, state)
+  // _t==renderSlot 
   let res = `_t(${slotName}${children ? `,function(){return ${children}}` : ''}`
   const attrs = el.attrs || el.dynamicAttrs
     ? genProps((el.attrs || []).concat(el.dynamicAttrs || []).map(attr => ({

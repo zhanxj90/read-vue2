@@ -187,6 +187,7 @@ export function mountComponent (
     }
   } else {
     updateComponent = () => {
+      // 子组件的初始化在这，父组件执行__patch__试初始化子组件
       vm._update(vm._render(), hydrating)
     }
   }
