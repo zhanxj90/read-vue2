@@ -22,6 +22,14 @@
 ```
 
 # 总体流程：
+## 类转换顺序
+  > vue-ast-code-vnode-dom
+  - 初始化一个vue对象（new vue），执行各类init函数，合并vue的n多初始值和方法，接着执行$mounted挂载方法
+  - parseHTML解析template模板中的vue格式html，形成ast语法树（就是个带一堆vue参数的对象）；这里会处理父子标签的关系，相互链接上
+  - 把ast转换成可执行的code函数（字符串方式拼接成的函数，字符串里很多vue的简写方法：_C、_l...）;render函数就是 返回code函数的with函数，render: `with(this){return ${code}}`,
+  - render是通过调用createElement和createEmptyVNode两个函数进行转化成vnode，createElemen根据不同情形选择new VNode或者调用createComponent实例化VNode；
+  - vnode通过_update变成dom，_update里的主要步骤是执行patch方法
+## 方法执行顺序
   - new Vue调用./instance/index 里的Vue()
   - 执行_init（挂在原型上）:各种初始化，及creat系列钩子的调用，最后执行$mount。 src\core\instance\init.js
   - $mount：进行编译转换（compile），vue格式内容转成render函数；执行mountComponent函数 src\platforms\web\entry-runtime-with-compiler.js

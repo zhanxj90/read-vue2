@@ -23,7 +23,12 @@ export function initRender (vm: Component) {
   const options = vm.$options
   const parentVnode = vm.$vnode = options._parentVnode // the placeholder node in parent tree
   const renderContext = parentVnode && parentVnode.context
-  // _renderChildren是父组件中引用的子组件里的内容？？这里没太懂
+  /**
+   * _renderChildren是父组件中引用的子组件里的内容
+   * src\core\instance\init.js中赋值了
+   * const vnodeComponentOptions = parentVnode.componentOptions
+   * opts._renderChildren = vnodeComponentOptions.children
+   * */
   vm.$slots = resolveSlots(options._renderChildren, renderContext)
   vm.$scopedSlots = emptyObject
   // bind the createElement fn to this instance

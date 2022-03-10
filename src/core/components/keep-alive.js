@@ -58,6 +58,8 @@ const patternTypes: Array<Function> = [String, RegExp, Array]
 
 export default {
   name: 'keep-alive',
+
+  // 忽略属性，创建实例的时候把keep-alive的子组件直接绑定到他的父组件上，这就是为什么渲染成dom的时候没有keep-alive标签
   abstract: true,
 
   props: {
@@ -78,6 +80,8 @@ export default {
         }
         keys.push(keyToCache)
         // prune oldest entry
+        // 有数量限制时删除第一个缓存，所以render读缓存时要更新缓存顺序
+        // 且删除的不是当前活跃的组件时，还有卸载（执行$destroy）
         if (this.max && keys.length > parseInt(this.max)) {
           pruneCacheEntry(cache, keys[0], keys, this._vnode)
         }
@@ -87,6 +91,7 @@ export default {
   },
 
   created () {
+    // 缓存字段
     this.cache = Object.create(null)
     this.keys = []
   },
@@ -99,6 +104,7 @@ export default {
 
   mounted () {
     this.cacheVNode()
+    // 监听include和exclude的变化，不符合新规则的缓存要删除
     this.$watch('include', val => {
       pruneCache(this, name => matches(val, name))
     })
@@ -119,6 +125,7 @@ export default {
       // check pattern
       const name: ?string = getComponentName(componentOptions)
       const { include, exclude } = this
+      // 检测include 和 exclude，不匹配的直接返回，不缓存了
       if (
         // not included
         (include && (!name || !matches(include, name))) ||
@@ -129,11 +136,13 @@ export default {
       }
 
       const { cache, keys } = this
+      // 获取key，有就直接拿，没有就拿cid和tag拼
       const key: ?string = vnode.key == null
         // same constructor may get registered as different local components
         // so cid alone is not enough (#3269)
         ? componentOptions.Ctor.cid + (componentOptions.tag ? `::${componentOptions.tag}` : '')
         : vnode.key
+      // 有缓存取缓存，并把缓存更新到最后位置（更新活跃度）；没有就赋值，在updated钩子中加入缓存
       if (cache[key]) {
         vnode.componentInstance = cache[key].componentInstance
         // make current key freshest

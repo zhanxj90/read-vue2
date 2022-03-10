@@ -5,13 +5,21 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
+  <style>
+    .fade-enter-active, .fade-leave-active {
+      transition: opacity .5s;
+    }
+    .fade-enter, .fade-leave-to {
+      opacity: 0;
+    }
+  </style>
 </head>
 <body>
   <div id="app"></div>
 </body>
 <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
 <script>
-  let Child = {
+let Child = {
   template: '<div class="child">' +
   '<slot text="Hello " :msg="msg"></slot>' +
   '</div>',
@@ -21,10 +29,33 @@
     }
   },
   mounted(){
-    console.log(this,'222222222')
+    console.log(this,'222222222')//3
   }
 }
-
+let A = {
+  template: '<div class="a">' +
+  '<p>A Comp</p>' +
+  '</div>',
+  name: 'A',
+  created(){
+    console.log(this,'a1111')//1
+  },
+  mounted(){
+    console.log(this,'a')//4
+  },
+}
+let B = {
+  template: '<div class="b">' +
+  '<p>B Comp</p>' +
+  '</div>',
+  name: 'B',
+  created(){
+    console.log(this,'b1111')//2
+  },
+  mounted(){
+    console.log(this,'b')//5
+  },
+}
 let vm = new Vue({
   el: '#app',
   template: '<div>' +
@@ -34,13 +65,34 @@ let vm = new Vue({
   '<p>{{ props.text + props.msg}}</p>' +
   '</template>' +
   '</child>' +
+  '<component :is="currentComp">' +
+  '</component>' +
+  '<button @click="change">switch</button>' +
+  // 过渡
+  '<button v-on:click="show = !show">' +
+  'Toggle' +
+  '</button>' +
+  '<transition :appear="true" name="fade">' +
+  '<p v-if="show">hello</p>' +
+  '</transition>' +
   '</div>',
   components: {
-    Child
+    Child,
+    A,
+    B
+  },
+  data: {
+    currentComp: 'A',
+    show: true
   },
   mounted(){
-    console.log(this,'111111111')
-  }
+    console.log(this,'111111111')//6
+  },
+  methods: {
+    change() {
+      this.currentComp = this.currentComp === 'A' ? 'B' : 'A'
+    }
+  },
 })
 </script>
 </html>

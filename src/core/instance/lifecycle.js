@@ -187,7 +187,7 @@ export function mountComponent (
     }
   } else {
     updateComponent = () => {
-      // 子组件的初始化在这，父组件执行__patch__试初始化子组件
+      // 子组件的初始化在这，父组件执行__patch__时初始化子组件
       vm._update(vm._render(), hydrating)
     }
   }
@@ -285,7 +285,9 @@ export function updateChildComponent (
 
   // resolve slots + force update if has children
   if (needsForceUpdate) {
+    // <keep-alive> 组件获取里面内容时用的就是slot
     vm.$slots = resolveSlots(renderChildren, parentVnode.context)
+    // <keep-alive>中是更新组件的作用
     vm.$forceUpdate()
   }
 

@@ -210,7 +210,12 @@ export function createPatchFunction (backend) {
   function createComponent (vnode, insertedVnodeQueue, parentElm, refElm) {
     let i = vnode.data
     if (isDef(i)) {
+      // 首次渲染keepAlive组件时，keepAlive是true，componentInstance都是false
+      // src\core\components\keep-alive.js里render函数先执行，这时还没有缓存；然后mounted里就会添加缓存了，下次切换组件render里就会给componentInstance赋值了
+      // keepAlive也是render函数里赋值的
       const isReactivated = isDef(vnode.componentInstance) && i.keepAlive
+      // init会执行child的$mount，里面会判断如果是keepAlive不执行$mount而直接读缓存的实例对象
+      // init钩子里就执行了子组件的初始化
       if (isDef(i = i.hook) && isDef(i = i.init)) {
         i(vnode, false /* hydrating */)
       }
@@ -219,6 +224,7 @@ export function createPatchFunction (backend) {
       // component also has set the placeholder vnode's elm.
       // in that case we can just return the element and be done.
       if (isDef(vnode.componentInstance)) {
+        // vnode.elm 缓存了 vnode 创建生成的 DOM 节点
         initComponent(vnode, insertedVnodeQueue)
         insert(parentElm, vnode.elm, refElm)
         if (isTrue(isReactivated)) {
@@ -421,6 +427,7 @@ export function createPatchFunction (backend) {
       checkDuplicateKeys(newCh)
     }
 
+    // diff算法，dom变更判断
     while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
       if (isUndef(oldStartVnode)) {
         oldStartVnode = oldCh[++oldStartIdx] // Vnode has been moved left
@@ -498,6 +505,7 @@ export function createPatchFunction (backend) {
     }
   }
 
+  // 数据更新时，组件有变化时触发；应该算是diff处理吧
   function patchVnode (
     oldVnode,
     vnode,
@@ -541,6 +549,7 @@ export function createPatchFunction (backend) {
 
     let i
     const data = vnode.data
+    // prepatch
     if (isDef(data) && isDef(i = data.hook) && isDef(i = i.prepatch)) {
       i(oldVnode, vnode)
     }
@@ -708,6 +717,7 @@ export function createPatchFunction (backend) {
 
     if (isUndef(oldVnode)) {
       // empty mount (likely as component), create new root element
+      // 初始化创建dom
       isInitialPatch = true
       createElm(vnode, insertedVnodeQueue)
     } else {

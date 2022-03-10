@@ -41,9 +41,11 @@ const componentVNodeHooks = {
       vnode.data.keepAlive
     ) {
       // kept-alive components, treat as a patch
+      // kept-alive组件执行patch时触发的，不会有mounted及之前的钩子
       const mountedNode: any = vnode // work around flow
       componentVNodeHooks.prepatch(mountedNode, mountedNode)
     } else {
+      // 其他组件的初始化，createComponentInstanceForVnode里有子组件的初始化钩子函数的执行
       const child = vnode.componentInstance = createComponentInstanceForVnode(
         vnode,
         activeInstance
@@ -225,6 +227,7 @@ export function createComponentInstanceForVnode (
     options.render = inlineTemplate.render
     options.staticRenderFns = inlineTemplate.staticRenderFns
   }
+  // vnode.componentOptions.Ctor==Vue.extend；所以这里会执行vue的_init
   return new vnode.componentOptions.Ctor(options)
 }
 
