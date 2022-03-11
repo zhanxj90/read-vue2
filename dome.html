@@ -56,6 +56,7 @@ let B = {
     console.log(this,'b')//5
   },
 }
+const raf =  window.requestAnimationFrame.bind(window)
 let vm = new Vue({
   el: '#app',
   template: '<div>' +
@@ -75,6 +76,7 @@ let vm = new Vue({
   '<transition :appear="true" name="fade">' +
   '<p v-if="show">hello</p>' +
   '</transition>' +
+  '<div @click="add">{{a}}</div>'+
   '</div>',
   components: {
     Child,
@@ -83,7 +85,8 @@ let vm = new Vue({
   },
   data: {
     currentComp: 'A',
-    show: true
+    show: true,
+    a:1
   },
   mounted(){
     console.log(this,'111111111')//6
@@ -91,7 +94,24 @@ let vm = new Vue({
   methods: {
     change() {
       this.currentComp = this.currentComp === 'A' ? 'B' : 'A'
-    }
+    },
+    add(){
+      this.a++
+      console.log(this.a,'======')
+      this.nextFrame (()=>{
+        console.log(666666)
+    })
+    this.$nextTick(()=>{
+    console.log(this.a,'55555555======')
+    })
+    console.log(this.a,'44444======')
+    },
+
+    nextFrame (fn) {
+      raf(() => {
+        raf(fn)
+      })
+}
   },
 })
 </script>

@@ -1,5 +1,5 @@
 /* @flow */
-
+// transition组件的动画；逻辑
 import { inBrowser, isIE9, warn } from 'core/util/index'
 import { mergeVNodeHook } from 'core/vdom/helpers/index'
 import { activeInstance } from 'core/instance/lifecycle'
@@ -29,6 +29,11 @@ export function enter (vnode: VNodeWithData, toggleDisplay: ?() => void) {
     el._leaveCb()
   }
 
+  /**
+   * 解析过渡数据
+   * resolveTransition定义在 src/platforms/web/transition-util.js
+   * 合并data；处理name属性，根据name生成动画的类名
+   */
   const data = resolveTransition(vnode.data.transition)
   if (isUndef(data)) {
     return
@@ -63,6 +68,11 @@ export function enter (vnode: VNodeWithData, toggleDisplay: ?() => void) {
   // transition. One edge case to check is when the <transition> is placed
   // as the root node of a child component. In that case we need to check
   // <transition>'s parent for appear check.
+  /**
+   * 处理边界情况
+   * isAppear 表示当前上下文实例还没有 mounted，第一次出现的时机。
+   * 当transition是子组件根节点，isAppear为true并且没有设置appear，就直接返回
+   */
   let context = activeInstance
   let transitionNode = activeInstance.$vnode
   while (transitionNode && transitionNode.parent) {
@@ -76,6 +86,22 @@ export function enter (vnode: VNodeWithData, toggleDisplay: ?() => void) {
     return
   }
 
+
+  /**
+   * 定义过渡类名、钩子函数和其它配置
+   * 
+   * startClass 定义进入过渡的开始状态，在元素被插入时生效，在下一个帧移除
+   * activeClass 定义过渡的状态，在元素整个过渡过程中作用，在元素被插入时生效，在 transition/animation 完成之后移除；
+   * toClass 定义进入过渡的结束状态，在元素被插入一帧后生效 (与此同时 startClass 被删除)，在 <transition>/animation 完成之后移除
+   * 
+   * beforeEnterHook 是过渡开始前执行的钩子函数
+   * enterHook 是在元素插入后或者是 v-show 显示切换后执行的钩子函数
+   * afterEnterHook 是在过渡动画执行完后的钩子函数。
+   * 
+   * explicitEnterDuration 表示 enter 动画执行的时间。
+   * expectsCSS 表示过渡动画是受 CSS 的影响。
+   * cb 定义的是过渡完成执行的回调函数。
+   */
   const startClass = isAppear && appearClass
     ? appearClass
     : enterClass
@@ -112,6 +138,8 @@ export function enter (vnode: VNodeWithData, toggleDisplay: ?() => void) {
   const expectsCSS = css !== false && !isIE9
   const userWantsControl = getHookArgumentsLength(enterHook)
 
+  //  把 toClass 和 activeClass 移除
+  // 如果还取消了动画则移除startClass
   const cb = el._enterCb = once(() => {
     if (expectsCSS) {
       removeTransitionClass(el, toClass)
@@ -128,6 +156,13 @@ export function enter (vnode: VNodeWithData, toggleDisplay: ?() => void) {
     el._enterCb = null
   })
 
+
+  /**
+   * 合并 insert 钩子函数
+   * mergeVNodeHook 的定义在 src/core/vdom/helpers/merge-hook.js 中
+   * mergeVNodeHook就是把hook 函数合并到 def.data.hook[hookey] 中
+   * mergeVNodeHook会把这里定义的insert合并到vnode里的insert 下
+   */
   if (!vnode.data.show) {
     // remove pending leave element on enter by injecting an insert hook
     mergeVNodeHook(vnode, 'insert', () => {
@@ -143,19 +178,27 @@ export function enter (vnode: VNodeWithData, toggleDisplay: ?() => void) {
     })
   }
 
-  // start enter transition
+  // start enter transition 开始执行过渡动画
   beforeEnterHook && beforeEnterHook(el)
+  // expectsCSS表示用css控制动画
   if (expectsCSS) {
+    // 添加了enter和enter-active
     addTransitionClass(el, startClass)
     addTransitionClass(el, activeClass)
+    // nextFrame是requestAnimationFrame（requestAnimationFrame是下一帧刷新前执行，所以extFrame套了两层，表示下下帧之前，也就是下一帧???应该没错哈）的实现，表示下一帧执行（大约是1/60秒）
     nextFrame(() => {
+      // 这里移除了enter
       removeTransitionClass(el, startClass)
+      // 若动画未取消则继续添加enter-to
       if (!cb.cancelled) {
         addTransitionClass(el, toClass)
+        // 用户是否通过钩子函数控制动画
         if (!userWantsControl) {
+          // 用户是否有定义延迟时间
           if (isValidDuration(explicitEnterDuration)) {
             setTimeout(cb, explicitEnterDuration)
           } else {
+            // 没有定延时则根据渡动画的结束事件来执行cb
             whenTransitionEnds(el, type, cb)
           }
         }

@@ -2,6 +2,7 @@
 
 // Provides transition support for a single element/component.
 // supports transition mode (out-in / in-out)
+// transition内置组件定义，web平台独有的，这里只有数据获取和vnode渲染
 
 import { warn } from 'core/util/index'
 import { camelize, extend, isPrimitive } from 'shared/util'
@@ -86,6 +87,7 @@ export default {
   abstract: true,
 
   render (h: Function) {
+    // 也是使用默认插槽获取内部标签，所以只能有一个直接子集
     let children: any = this.$slots.default
     if (!children) {
       return
@@ -107,6 +109,7 @@ export default {
       )
     }
 
+    // 处理mode，只能是in-out 或者是 out-in
     const mode: string = this.mode
 
     // warn invalid mode

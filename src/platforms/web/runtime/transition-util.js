@@ -9,6 +9,10 @@ export function resolveTransition (def?: string | Object): ?Object {
     return
   }
   /* istanbul ignore else */
+  /**
+   * def == vnode.data.transition
+   * 如果transition是对象，就合并处理之后的属性；如果是字符串就直接返回生成后的对象
+   */
   if (typeof def === 'object') {
     const res = {}
     if (def.css !== false) {
