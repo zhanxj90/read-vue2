@@ -12,6 +12,24 @@
     .fade-enter, .fade-leave-to {
       opacity: 0;
     }
+    .list-complete-item {
+      display: inline-block;
+      margin-right: 10px;
+    }
+    .list-complete-move {
+      transition: all 1s;
+    }
+    .list-complete-enter, .list-complete-leave-to {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    .list-complete-enter-active {
+      transition: all 1s;
+    }
+    .list-complete-leave-active {
+      transition: all 1s;
+      position: absolute;
+    }
   </style>
 </head>
 <body>
@@ -77,6 +95,13 @@ let vm = new Vue({
   '<p v-if="show">hello</p>' +
   '</transition>' +
   '<div @click="add">{{a}}</div>'+
+  '<button v-on:click="add2">Add</button>' +
+  '<button v-on:click="remove2">Remove</button>' +
+  '<transition-group name="list-complete" tag="p">' +
+  '<span v-for="item in items" v-bind:key="item" class="list-complete-item">' +
+  '{{ item }}' +
+  '</span>' +
+  '</transition-group>' +
   '</div>',
   components: {
     Child,
@@ -86,7 +111,9 @@ let vm = new Vue({
   data: {
     currentComp: 'A',
     show: true,
-    a:1
+    a:1,
+    items: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    nextNum: 10,
   },
   mounted(){
     console.log(this,'111111111')//6
@@ -106,12 +133,20 @@ let vm = new Vue({
     })
     console.log(this.a,'44444======')
     },
-
     nextFrame (fn) {
       raf(() => {
         raf(fn)
       })
-}
+    },
+    randomIndex: function () {
+      return Math.floor(Math.random() * this.items.length)
+    },
+    add2: function () {
+      this.items.splice(this.randomIndex(), 0, this.nextNum++)
+    },
+    remove2: function () {
+      this.items.splice(this.randomIndex(), 1)
+    }
   },
 })
 </script>

@@ -52,6 +52,10 @@ export default {
   },
 
   render (h: Function) {
+    /**
+     * 定义一些变量
+     * transition-group
+     */
     const tag: string = this.tag || this.$vnode.data.tag || 'span'
     const map: Object = Object.create(null)
     const prevChildren: Array<VNode> = this.prevChildren = this.children
