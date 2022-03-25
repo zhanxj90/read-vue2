@@ -1,7 +1,10 @@
 /* @flow */
 
 import { toArray } from '../util/index'
-
+/**
+ * 全局api：插件使用
+ * @param {*} Vue 
+ */
 export function initUse (Vue: GlobalAPI) {
   Vue.use = function (plugin: Function | Object) {
     const installedPlugins = (this._installedPlugins || (this._installedPlugins = []))
@@ -10,6 +13,7 @@ export function initUse (Vue: GlobalAPI) {
     }
 
     // additional parameters
+    // 把可能有的参数传入install，并替换当前环境为this
     const args = toArray(arguments, 1)
     args.unshift(this)
     if (typeof plugin.install === 'function') {
